@@ -110,7 +110,13 @@ One of the things that's nice about the way these references work is they have u
 
 ![00.41.45 PersistentDataStructure](PersistentDataStructure/00.41.45.jpg)
 
-So what does it mean to edit something in this new world. You're gonna have a reference to a new value, right? We can make a new value a la carte, on the side. We're gonna call a function create this new value which we intend to become the new state of foo. The new values are function of the olds, they can share structures, we just saw that. Doing this stuff doesn't impede anybody who is reading foo, right? They're completely free to keep reading. They don't have to stop while we figure out the new version of foo. In addition, it's not impeded by people reading. We don't have to wait for people to stop reading so we can make a new version. This is the kind of thing you're gonna need for high-throughput concurrency.
+So what does it mean to edit something in this new world. You're gonna have a reference to a new value, right? We can make a new value a la carte, on the side. We're gonna call a function create this new value which we intend to become the new state of foo. The new values are function of the olds, they can share structures, we just saw that. Doing this stuff doesn't impede anybody who is reading foo, right? They're completely free to keep reading. They don't have to stop while we figure out the new version of foo. In addition, it's not impeded by people reading. We don't have to wait for people to stop reading so we can start making a new version. This is the kind of thing you're gonna need for high-throughput concurrency.
+
+![00.42.25 PersistentDataStructure](PersistentDataStructure/00.42.25.jpg)
+
+And then going to a new state is just a atomic swapping of this box to look at the new immutable value. That's always coordinated. There's always rules for how that happens. I just showed you the multiple semantics. Anytime somebody dereference this after this happens, they'll always see the new values. Consumers are unaffected. If I was looking at the old values, I don't get disturbed by this happening. I'm just looking at the old values. It's like I'm looking at the picture of the runners of the scene, I know the race's over. That's ok, we need to behave that way. If you've been programming for so long as I have, it's really hard to break from I own the world, stop the world, the world go when I say go. We have to just break from that. That's the future. We have to understand that we're going to be working with data that is not necessarily the very latest data. That's just the future for us.
+
+![00.43.18 PersistentDataStructure](PersistentDataStructure/00.43.18.jpg)
 
 
 
