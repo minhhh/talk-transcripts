@@ -117,6 +117,27 @@ So what does it mean to edit something in this new world. You're gonna have a re
 And then going to a new state is just a atomic swapping of this box to look at the new immutable value. That's always coordinated. There's always rules for how that happens. I just showed you the multiple semantics. Anytime somebody dereference this after this happens, they'll always see the new values. Consumers are unaffected. If I was looking at the old values, I don't get disturbed by this happening. I'm just looking at the old values. It's like I'm looking at the picture of the runners of the scene, I know the race's over. That's ok, we need to behave that way. If you've been programming for so long as I have, it's really hard to break from I own the world, stop the world, the world go when I say go. We have to just break from that. That's the future. We have to understand that we're going to be working with data that is not necessarily the very latest data. That's just the future for us.
 
 ![00.43.18 PersistentDataStructure](PersistentDataStructure/00.43.18.jpg)
+Ok so the hard references as I said is the transactional one. Clojure has a software transactional memory system. I almost hate using this term because people like to critize STM as if it's one thing. There's whole bunch of different STMs. They have radically different characteristics. Clojure's is radically different from the other ones. But they all share something which is basically a model that feels a lot like a database model. You can always change them within a transaction. All the changes you made to an entire set of references, refs, inside a transaction, happen together or none of them happen. That's atomicity. You don't see the effects of any other transactions while you're running, they don't see your effects, is the normal thing. The one unique thing about STM transactions is that they're speculative. You may not win, somebody else may win. You will automatically retry up to a certain limit, which means your transactions cannot contain side-effects.
+
+![00.44.15 PersistentDataStructure](PersistentDataStructure/00.44.15.jpg)
+This is the way you do coordination. You can't really do coordination without some technique like this. You can't system of independent entities and do this kind of work. So in practice what you do is you just wrap your code in `dosync` which means this is the transaction. There are two functions alter and commute which work like I described. They take a function, a reference set of functions and some args and say, apply this to the references in the transaction and make the return value a new state. Internally Clojure uses multiversion concurrency control (MVCC) which I also think is a very critical component to doing STM in a way that's gonna work in the real world. A lot of STMs designed so you just write your app in the terrible way you are in the object oriented language, banging on fields and STM is gonna magically make that better. I don't believe in that at all. Clojure STM is not designed for that kind of work. If you make every part of your object a ref, it isn't gonna work and I'm not gonna feel bad cause I just explained how to do it. You make your object the value and atomically switch that value and everything is better but you do have the issue of, again, people would criticize STM universally because most STMs do something called `retracking`. In order to make sure nothing bad happens while your transaction is going on, they track every read that you do in addition to all the writes that you do. I also believe that that's not going to work. So Clojure has no retracking. The way it accomplishes that is with the technique called Multiversion Concurrency Control which is the way Oracle and ProgreSQL work as databases. Essentially all values can be kept around in order to provide a snapshot of the world for transactions while other transactions that are writing can continue. That is being extremely effective. But it falls out of this neccessity to be using references to values. It's gotta be cheap for me to keep an old value around. I just showed you how it is cheap, using persistent data structures. All these things go together. You don't do all the stuff together, you don't have an answer to the problem in my opinion. But when you do this, it's really nice. So MVCC STM does not do retracking.
+
+![00.46.24 PersistentDataStructure](PersistentDataStructure/00.46.24.jpg)
 
 
 
+
+
+
+
+![00.54.57 PersistentDataStructure](PersistentDataStructure/00.54.57.jpg)
+
+So, in summary, immutable values are critical for functional programming. But they end up also critical for state. We cannot really manage time and state without immutable values. If you got 2 things changed, time and value, you can't do anything that's reliable.
+
+Persistent data structures let you represent composite object efficiently, immutably. Once you're able to accept this constraint of immutability on your values, you have all these options. Now we're working on a fifth reference type with slightly different semantics. It's easy to do because I've seprated time management from value management.
+
+Finally, I think this is pretty easy to use. If you've seen some other models this is a lot like variables that work.
+
+![00.55.51 PersistentDataStructure](PersistentDataStructure/00.55.51.jpg)
+
+So, thank you!
